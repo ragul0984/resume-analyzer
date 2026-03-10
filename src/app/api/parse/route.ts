@@ -16,9 +16,17 @@ export async function POST(req: Request) {
 
     if (file.type === 'application/pdf') {
       await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error("PDF parsing timed out. The file might be too complex or an image-based PDF."));
+        }, 10000);
+
         const pdfParser = new PDFParser(null, true);
-        pdfParser.on("pdfParser_dataError", (errData: any) => reject(new Error(errData.parserError)));
+        pdfParser.on("pdfParser_dataError", (errData: any) => {
+          clearTimeout(timeout);
+          reject(new Error(errData.parserError));
+        });
         pdfParser.on("pdfParser_dataReady", () => {
+          clearTimeout(timeout);
           extractedText = pdfParser.getRawTextContent().replace(/\r\n/g, " ");
           resolve();
         });
