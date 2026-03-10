@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 
       const text = response.choices[0]?.message?.content?.trim() || "[]";
       // Basic JSON extraction if model wraps in code blocks
-      const jsonMatch = text.match(/\[.*\]/s);
+      const jsonMatch = text.match(/\[[\s\S]*\]/);
       const questions = JSON.parse(jsonMatch ? jsonMatch[0] : text);
       return NextResponse.json({ questions });
     }
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
       });
 
       const text = response.choices[0]?.message?.content?.trim() || "{}";
-      const jsonMatch = text.match(/\{.*\}/s);
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
       const evaluation = JSON.parse(jsonMatch ? jsonMatch[0] : text);
       return NextResponse.json(evaluation);
     }
