@@ -5,12 +5,13 @@ import * as mammoth from 'mammoth';
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
-    const file = formData.get('resume') as File | null;
+    const fileEntry = formData.get('resume');
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+    if (!fileEntry || typeof fileEntry === 'string') {
+      return NextResponse.json({ error: 'No file uploaded or invalid file format. Please try again.' }, { status: 400 });
     }
 
+    const file = fileEntry as File;
     const buffer = Buffer.from(await file.arrayBuffer());
     let extractedText = '';
 
