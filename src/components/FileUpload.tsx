@@ -38,7 +38,12 @@ export default function FileUpload({ onComplete, isAuthenticated = true, onAuthR
 
     try {
       // 1. Parse File
-      const parseRes = await fetch('/api/parse', { method: 'POST', body: formData });
+      let parseRes;
+      try {
+        parseRes = await fetch('/api/parse', { method: 'POST', body: formData });
+      } catch (networkErr: any) {
+        throw new Error(`Upload network error (Parse): ${networkErr.message}. Are you offline, or is a mobile adblocker blocking the request?`);
+      }
       
       if (!parseRes.ok) {
         let backendError = 'Failed to extract text from file.';
@@ -46,7 +51,7 @@ export default function FileUpload({ onComplete, isAuthenticated = true, onAuthR
           const errData = await parseRes.json();
           if (errData.error) backendError = errData.error;
         } catch (e) { }
-        throw new Error(backendError);
+        throw new Error(`Server Error (${parseRes.status}): ` + backendError);
       }
       
       const parseData = await parseRes.json();
@@ -55,11 +60,16 @@ export default function FileUpload({ onComplete, isAuthenticated = true, onAuthR
 
       // 2. Analyze Text with AI
       setStatusText('Analyzing with AI...');
-      const analyzeRes = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: parseData.text })
-      });
+      let analyzeRes;
+      try {
+        analyzeRes = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: parseData.text })
+        });
+      } catch (networkErr: any) {
+        throw new Error(`Analysis network error (Analyze): ${networkErr.message}. A browser extension/shield might be blocking /api/analyze.`);
+      }
 
       const analyzeData = await analyzeRes.json();
       if (!analyzeRes.ok || analyzeData.error) {
@@ -72,6 +82,7 @@ export default function FileUpload({ onComplete, isAuthenticated = true, onAuthR
       onComplete(analyzeData.analysis as AnalysisData);
 
     } catch (err: any) {
+      console.error(err);
       setError(err.message || 'An unexpected error occurred.');
     } finally {
       setIsUploading(false);
