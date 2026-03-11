@@ -129,17 +129,14 @@ export default function SignInModal({ isOpen, onClose, onSignIn }: SignInModalPr
           <button 
             type="submit"
             disabled={isLoading}
+            className="btn-solid"
             style={{
               width: '100%', padding: '0.875rem', marginTop: '0.5rem',
-              backgroundColor: 'var(--primary-color)', color: 'white',
-              border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 600,
+              borderRadius: '8px', fontSize: '1rem', fontWeight: 600,
               cursor: isLoading ? 'not-allowed' : 'pointer',
-              transition: 'background-color 0.2s',
               opacity: isLoading ? 0.7 : 1,
               display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px'
             }}
-            onMouseOver={e => { if(!isLoading) e.currentTarget.style.backgroundColor = 'var(--primary-hover)'; }}
-            onMouseOut={e => { if(!isLoading) e.currentTarget.style.backgroundColor = 'var(--primary-color)'; }}
           >
             {isLoading ? (
               <span style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
